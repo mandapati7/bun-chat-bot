@@ -1,8 +1,8 @@
-import { useForm } from 'react-hook-form';
+import { set, useForm } from 'react-hook-form';
 import { Button } from './ui/button';
 import { FaArrowUp } from 'react-icons/fa6';
 import axios from 'axios';
-import { useRef, useState } from 'react';
+import { use, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 
 type FormData = {
@@ -21,9 +21,12 @@ type Message = {
 const ChatBox = () => {
   const conversationId = useRef(crypto.randomUUID());
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isBotTyping, setIsBotTyping] = useState(false);
   const { register, handleSubmit, reset, formState } = useForm<FormData>();
 
   const onSubmit = async ({ prompt }: FormData) => {
+    setMessages((prev) => [...prev, { role: 'user', content: prompt }]);
+    setIsBotTyping(true);
     reset();
     const response = await axios.post<ChatResponse>('/api/chat', {
       prompt,
@@ -34,6 +37,7 @@ const ChatBox = () => {
       { role: 'user', content: prompt },
       { role: 'bot', content: response.data.message },
     ]);
+    setIsBotTyping(false);
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
@@ -71,6 +75,22 @@ const ChatBox = () => {
             </div>
           </div>
         ))}
+        {isBotTyping && (
+          <div className="flex self-start gap-x-2 px-3 py-3 bg-gray-200 rounded-xl">
+            <div
+              className="w-2 h-2 rounded-full bg-gray-500 animate-bounce"
+              style={{ animationDelay: '0ms' }}
+            ></div>
+            <div
+              className="w-2 h-2 rounded-full bg-gray-500 animate-bounce"
+              style={{ animationDelay: '200ms' }}
+            ></div>
+            <div
+              className="w-2 h-2 rounded-full bg-gray-500 animate-bounce"
+              style={{ animationDelay: '400ms' }}
+            ></div>
+          </div>
+        )}
       </div>
       <form
         onSubmit={handleSubmit(onSubmit)}
