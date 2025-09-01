@@ -112,10 +112,10 @@ const ChatBox = () => {
       >
         <textarea
           {...register('prompt', { required: true, validate: (value) => value.trim().length > 0 })}
-          className="flex-1 border rounded-lg p-2 resize-none focus:outline-none bg-gray-100"
+          className="flex-1 border rounded-lg p-4 resize-none focus:outline-none bg-gray-100 text-base min-h-[60px]"
           placeholder="Ask me anything..."
           maxLength={1000}
-          rows={1}
+          rows={3}
         />
         <Button
           disabled={!formState.isValid}
