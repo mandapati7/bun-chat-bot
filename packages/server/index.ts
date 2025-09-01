@@ -24,10 +24,14 @@ app.get('/api/hello', (req: Request, res: Response) => {
 });
 
 let lastResponseId: string | null = null;
+const conversations = new Map<string, string>();
 
 app.post('/api/chat', async (req: Request, res: Response) => {
-  const { prompt } = req.body;
+  const { prompt, conversationId } = req.body;
+  // Log both prompt and conversationIds
   console.log('Received prompt:', prompt);
+  console.log('Conversation ID:', conversationId);
+  console.log('conversations:', conversations);
 
   if (!prompt) {
     return res.status(400).send({ error: 'Messages are required' });
@@ -38,8 +42,10 @@ app.post('/api/chat', async (req: Request, res: Response) => {
     input: prompt,
     temperature: 0.2,
     max_output_tokens: 100,
-    previous_response_id: lastResponseId || undefined,
+    previous_response_id: conversations.get(conversationId),
   });
+
+  conversations.set(conversationId, response.id);
 
   lastResponseId = response.id;
 
