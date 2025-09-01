@@ -28,7 +28,7 @@ const ChatBox = () => {
   const onSubmit = async ({ prompt }: FormData) => {
     setMessages((prev) => [...prev, { role: 'user', content: prompt }]);
     setIsBotTyping(true);
-    reset();
+    reset({ prompt: '' });
     const response = await axios.post<ChatResponse>('/api/chat', {
       prompt,
       conversationId: conversationId.current,
