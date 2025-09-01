@@ -20,14 +20,12 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.get('/api/hello', (req: Request, res: Response) => {
-  console.log('Received request at /api/hello');
   res.send({ message: 'Hello, World from API!' });
 });
 
 let lastResponseId: string | null = null;
 
 app.post('/api/chat', async (req: Request, res: Response) => {
-  console.log('Received request:', req.body);
   const { prompt } = req.body;
   console.log('Received prompt:', prompt);
 
