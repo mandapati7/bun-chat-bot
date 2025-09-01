@@ -2,7 +2,7 @@ import { set, useForm } from 'react-hook-form';
 import { Button } from './ui/button';
 import { FaArrowUp } from 'react-icons/fa6';
 import axios from 'axios';
-import { use, useRef, useState } from 'react';
+import { use, useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 
 type FormData = {
@@ -23,6 +23,7 @@ const ChatBox = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isBotTyping, setIsBotTyping] = useState(false);
   const { register, handleSubmit, reset, formState } = useForm<FormData>();
+  const bottomRef = useRef<HTMLDivElement | null>(null);
 
   const onSubmit = async ({ prompt }: FormData) => {
     setMessages((prev) => [...prev, { role: 'user', content: prompt }]);
@@ -32,11 +33,7 @@ const ChatBox = () => {
       prompt,
       conversationId: conversationId.current,
     });
-    setMessages((prev) => [
-      ...prev,
-      { role: 'user', content: prompt },
-      { role: 'bot', content: response.data.message },
-    ]);
+    setMessages((prev) => [...prev, { role: 'bot', content: response.data.message }]);
     setIsBotTyping(false);
   };
 
@@ -47,6 +44,17 @@ const ChatBox = () => {
     }
   };
 
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isBotTyping]);
+
+  const onCopySelectedText = (e: React.ClipboardEvent<HTMLParagraphElement>) => {
+    const selection = window.getSelection()?.toString().trim();
+    if (selection) {
+      e.preventDefault();
+      e.clipboardData.setData('text/plain', selection);
+    }
+  };
   return (
     <div className="relative h-screen max-h-screen flex flex-col">
       <div className="flex-1 overflow-y-auto px-2 pb-32 space-y-2">
@@ -69,14 +77,17 @@ const ChatBox = () => {
               >
                 <strong>{msg.role === 'user' ? 'You' : 'Bot'}:</strong>
               </p>
-              <span className={msg.role === 'user' ? 'text-blue-900' : 'text-white'}>
+              <span
+                className={msg.role === 'user' ? 'text-blue-900' : 'text-white'}
+                onCopy={onCopySelectedText}
+              >
                 <ReactMarkdown>{msg.content}</ReactMarkdown>
               </span>
             </div>
           </div>
         ))}
         {isBotTyping && (
-          <div className="flex self-start gap-x-2 px-3 py-3 bg-gray-200 rounded-xl">
+          <div className="flex gap-x-2 px-3 py-3 bg-gray-200 rounded-xl w-auto ml-2">
             <div
               className="w-2 h-2 rounded-full bg-gray-500 animate-bounce"
               style={{ animationDelay: '0ms' }}
@@ -91,6 +102,7 @@ const ChatBox = () => {
             ></div>
           </div>
         )}
+        <div ref={bottomRef} />
       </div>
       <form
         onSubmit={handleSubmit(onSubmit)}
