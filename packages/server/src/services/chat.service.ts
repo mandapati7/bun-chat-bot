@@ -1,15 +1,15 @@
 import { ConversationRepository } from '../repositories/conversation.repository.js';
-import { OpenAIRepository } from '../repositories/openai.repository.js';
+import { OpenAIService } from './openai.service.js';
 import type { ChatRequest, ChatResponse } from '../types/chat.types.js';
 
 export class ChatService {
   private conversationRepository: ConversationRepository;
-  private openAIRepository: OpenAIRepository;
+  private openAIService: OpenAIService;
   private lastResponseId: string | null = null;
 
   constructor() {
     this.conversationRepository = new ConversationRepository();
-    this.openAIRepository = new OpenAIRepository();
+    this.openAIService = new OpenAIService();
   }
 
   async processChat(chatRequest: ChatRequest): Promise<ChatResponse> {
@@ -22,10 +22,7 @@ export class ChatService {
         : undefined;
 
       // Generate response from OpenAI
-      const openAIResponse = await this.openAIRepository.generateResponse(
-        prompt,
-        previousResponseId
-      );
+      const openAIResponse = await this.openAIService.generateResponse(prompt, previousResponseId);
 
       // Save conversation state
       if (conversationId) {

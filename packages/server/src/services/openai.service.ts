@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 import type { OpenAIResponse } from '../types/chat.types.js';
 
-export class OpenAIRepository {
+export class OpenAIService {
   private client: OpenAI;
 
   constructor() {
